@@ -1,6 +1,5 @@
 #kivy 1.0
 
-
 BoxLayout:
     orientation: "vertical"
     BoxLayout:
@@ -8,13 +7,22 @@ BoxLayout:
         size_hint: 1, 0.03
         Button:
             text: "Select File"
-            on_release: app.button1()
+            on_release: app.toggle_file_chooser(file_chooser, image)
         Button:
             text: "Reload"
+            on_release: app.toggle_file_chooser(file_chooser, image)
         Button:
             text: "Next Page"
         Button:
             text: "Prev Page"
 
     Image:
-        source: "./kek.png"
+        source: app.current_img
+        id: image
+        size_hint: 1, 0.97
+
+    FileChooserIconView:
+        id: file_chooser
+        size_hint: 0, 0
+        size: 0, 0
+        on_submit: app.select_file(file_chooser, image)
