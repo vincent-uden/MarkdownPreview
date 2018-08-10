@@ -1,0 +1,20 @@
+#kivy 1.0
+
+
+BoxLayout:
+    orientation: "vertical"
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: 1, 0.03
+        Button:
+            text: "Select File"
+            on_release: app.button1()
+        Button:
+            text: "Reload"
+        Button:
+            text: "Next Page"
+        Button:
+            text: "Prev Page"
+
+    Image:
+        source: "./kek.png"
