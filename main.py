@@ -16,7 +16,7 @@ CSS_FILE = "./style.css"
 class TestBarApp(App):
     def __init__(self):
         super().__init__()
-        self.current_img = "./tmp/kek.png"
+        self.current_img = "./resources/front-page.png"
         self.file_chooser_active = False
         self.img_index = 0
         self.amount = 0
