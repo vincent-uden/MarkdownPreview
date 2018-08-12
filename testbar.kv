@@ -10,11 +10,13 @@ BoxLayout:
             on_release: app.toggle_file_chooser(file_chooser, image)
         Button:
             text: "Reload"
-            on_release: app.toggle_file_chooser(file_chooser, image)
-        Button:
-            text: "Next Page"
+            on_release: app.refresh(image)
         Button:
             text: "Prev Page"
+            on_release: app.prev_img(image)
+        Button:
+            text: "Next Page"
+            on_release: app.next_img(image)
 
     Image:
         source: app.current_img
