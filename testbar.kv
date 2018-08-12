@@ -1,6 +1,12 @@
 #kivy 1.0
 
-BoxLayout:
+<MyLayout>:
+    canvas:
+        Color:
+            rgb: 0.2, 0.2, 0.2
+        Rectangle:
+            size: self.size
+    id: lul
     orientation: "vertical"
     BoxLayout:
         orientation: "horizontal"
