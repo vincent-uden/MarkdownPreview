@@ -1,6 +1,6 @@
 from time import sleep
 from math import floor
-from os.path import basename, abspath, join, exists, dirname
+from os.path import basename, abspath, join, exists, dirname, isfile
 from os import makedirs
 from shutil import rmtree
 from sys import argv
@@ -28,6 +28,15 @@ class TestBarApp(App):
         self.amount = 0
         self.img_basename = ""
         self.selected_file = ""
+        Window.bind(on_key_down=self._on_keyboard_down)
+
+    def _on_keyboard_down(self, keyboard, keycode, ascii_code, text, 
+            modifiers):
+        print(keyboard)
+        print(keycode)
+        print(ascii_code)
+        print(text)
+        print(modifiers)
     
     def build(self):
         self.rootlayout = MyLayout()
@@ -44,7 +53,7 @@ class TestBarApp(App):
     def create_images(self, path):
         images = convert_from_path(path)
         file_name = basename(path)
-        #Hidden file
+        # Hidden file special case
         if file_name[0] == ".":
             file_name = file_name[1::]
         file_name = file_name.split(".")[0]
@@ -54,6 +63,8 @@ class TestBarApp(App):
         self.img_basename = "./.mdtmp/" + file_name
 
     def toggle_file_chooser(self, file_chooser, img):
+        # Makes image widget invisible and enlarges file chooser
+        # since kivy doesnt allow multiple windows easily
         if self.file_chooser_active:
             img.size = file_chooser.size
             img.size_hint = file_chooser.size_hint
@@ -89,6 +100,17 @@ class TestBarApp(App):
         output = "./.mdtmp/" + basename(path).split(".")[0] + ".pdf"
         pdfkit.from_string(html_text, output, css=CSS_FILE)
         return output
+
+    def export(self):
+        with open(self.selected_file, "r") as f:
+            html_text = markdown(f.read(), output_format="html4")
+        output = "./" + basename(self.selected_file).split(".")[0] + ".pdf"
+        i = 0
+        while isfile(output):
+            output = ("./" + basename(self.selected_file).split(".")[0] 
+                    + str(i) + ".pdf")
+            i += 1
+        pdfkit.from_string(html_text, output, css=CSS_FILE)
     
     def select_image(self, img, index):
         img.source = self.img_basename + str(index) + ".png"
