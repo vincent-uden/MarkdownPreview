@@ -14,6 +14,7 @@ from pdf2image import convert_from_path
 import pdfkit
 # Custom css for markdown to html convertion
 CSS_FILE = "./style.css"
+FRONT_PAGE_IMG = "./resources/front-page.png"
 
 class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
@@ -22,7 +23,7 @@ class MyLayout(BoxLayout):
 class TestBarApp(App):
     def __init__(self):
         super().__init__()
-        self.current_img = "./resources/front-page.png"
+        self.current_img = FRONT_PAGE_IMG
         self.file_chooser_active = False
         self.img_index = 0
         self.amount = 0
@@ -30,13 +31,24 @@ class TestBarApp(App):
         self.selected_file = ""
         Window.bind(on_key_down=self._on_keyboard_down)
 
-    def _on_keyboard_down(self, keyboard, keycode, ascii_code, text, 
+    def _on_keyboard_down(self, keyboard, ascii_code, keycode, text, 
             modifiers):
-        print(keyboard)
-        print(keycode)
-        print(ascii_code)
-        print(text)
-        print(modifiers)
+        # Ctrl + e/E -> export to pdf
+        if ascii_code == 101 and modifiers == ["ctrl"]:
+            self.export()
+        # j/J        -> page down
+        elif ascii_code == 106:
+            self.next_img(self.root.ids["image"])
+        # k/K        -> page up
+        elif ascii_code == 107:
+            self.prev_img(self.root.ids["image"])
+        # Ctrl + r/R -> reload file
+        elif ascii_code == 114 and modifiers == ["ctrl"]:
+            self.refresh(self.root.ids["image"])
+        # Ctrl + o/O  -> select file
+        elif ascii_code == 111 and modifiers == ["ctrl"]:
+            self.toggle_file_chooser(self.root.ids["file_chooser"],
+                    self.root.ids["image"])
     
     def build(self):
         self.rootlayout = MyLayout()
@@ -102,6 +114,9 @@ class TestBarApp(App):
         return output
 
     def export(self):
+        if self.selected_file == "":
+            # TODO: Add error handling and messaging
+            return
         with open(self.selected_file, "r") as f:
             html_text = markdown(f.read(), output_format="html4")
         output = "./" + basename(self.selected_file).split(".")[0] + ".pdf"
