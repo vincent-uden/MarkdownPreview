@@ -33,7 +33,7 @@ class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
         BoxLayout.__init__(self, *args, **kwargs)
 
-
+### Export confirmation popup ###
 export_layout = BoxLayout(orientation="vertical", padding=[0.1, 0.1, 0.1, 0.1])
 eBtn_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.4))
 eLabl = Label(text="Export selected document to pdf?", size_hint=(1, 0.6))
@@ -48,6 +48,7 @@ export_popup = Popup(title="Export to pdf",
         content = export_layout,
         size_hint = (None, None),
         size = (400, 200))
+###   ###   ###   ###   ###   ###
 
 class TestBarApp(App):
     def __init__(self):
@@ -60,7 +61,6 @@ class TestBarApp(App):
         self.selected_file = ""
         self.export_open = False
         Window.bind(on_key_down=self._on_keyboard_down)
-
 
     def _on_keyboard_down(self, keyboard, ascii_code, keycode, text, 
             modifiers):
@@ -80,8 +80,12 @@ class TestBarApp(App):
         elif ascii_code == 111 and modifiers == ["ctrl"]:
             self.toggle_file_chooser(self.root.ids["file_chooser"],
                     self.root.ids["image"])
-        elif ascii_code == 13 and self.export_open:
-            self.export_and_close()
+        elif ascii_code == 13 :
+            if self.export_open:
+                self.export_and_close()
+            elif self.file_chooser_active:
+                self.select_file(self.root.ids["file_chooser"],
+                        self.root.ids["image"])
         print(ascii_code)
     
     def build(self):
@@ -128,10 +132,10 @@ class TestBarApp(App):
     def select_file(self, file_chooser, img):
         self.selected_path = file_chooser.path
         self.selected_file = join(file_chooser.path, file_chooser.selection[0])
+        self.toggle_file_chooser(file_chooser, img)
         pdf_file = self.create_pdf(self.selected_file)
         self.create_images(pdf_file)
         self.img_index = 0
-        self.toggle_file_chooser(file_chooser, img)
         self.select_image(img, 0)
     
     def select_file_path(self, path, img):

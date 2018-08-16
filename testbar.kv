@@ -6,7 +6,6 @@
             rgb: 0.2, 0.2, 0.2
         Rectangle:
             size: self.size
-    id: lul
     orientation: "vertical"
     BoxLayout:
         orientation: "horizontal"
@@ -19,7 +18,6 @@
             on_release: app.refresh(image)
         Button:
             text: "Export to pdf"
-            #on_release: app.export()
             on_release: app.open_export_popup()
         Button:
             text: "Prev Page"
@@ -39,7 +37,7 @@
                 pos: image.pos
                 size: image.size
 
-    FileChooserIconView:
+    FileChooserListView:
         id: file_chooser
         size_hint: 0, 0
         size: 0, 0
