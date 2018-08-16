@@ -6,10 +6,13 @@
             rgb: 0.2, 0.2, 0.2
         Rectangle:
             size: self.size
+    id: lul
     orientation: "vertical"
+    padding: 2, 2, 2, 2
     BoxLayout:
         orientation: "horizontal"
         size_hint: 1, 0.03
+        id: button_container
         Button:
             text: "Select File"
             on_release: app.toggle_file_chooser(file_chooser, image)
@@ -37,7 +40,7 @@
                 pos: image.pos
                 size: image.size
 
-    FileChooserListView:
+    FileChooserIconView:
         id: file_chooser
         size_hint: 0, 0
         size: 0, 0

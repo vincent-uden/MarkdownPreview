@@ -33,7 +33,7 @@ class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
         BoxLayout.__init__(self, *args, **kwargs)
 
-### Export confirmation popup ###
+###   ###   ###   ###   ###  Export confirmation popup ###   ###   ###   ###   ###   ###
 export_layout = BoxLayout(orientation="vertical", padding=[0.1, 0.1, 0.1, 0.1])
 eBtn_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.4))
 eLabl = Label(text="Export selected document to pdf?", size_hint=(1, 0.6))
@@ -48,7 +48,7 @@ export_popup = Popup(title="Export to pdf",
         content = export_layout,
         size_hint = (None, None),
         size = (400, 200))
-###   ###   ###   ###   ###   ###
+###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
 
 class TestBarApp(App):
     def __init__(self):
@@ -86,7 +86,6 @@ class TestBarApp(App):
             elif self.file_chooser_active:
                 self.select_file(self.root.ids["file_chooser"],
                         self.root.ids["image"])
-        print(ascii_code)
     
     def build(self):
         eBtn1.bind(on_release=self.export_and_close)
@@ -117,6 +116,8 @@ class TestBarApp(App):
     def toggle_file_chooser(self, file_chooser, img):
         # Makes image widget invisible and enlarges file chooser
         # since kivy doesnt allow multiple windows easily
+        print(self.root.ids["button_container"].height)
+        file_chooser_height = self.root.height - floor(self.root.ids["button_container"].height)
         if self.file_chooser_active:
             img.size = file_chooser.size
             img.size_hint = file_chooser.size_hint
@@ -124,7 +125,9 @@ class TestBarApp(App):
             file_chooser.size_hint = (0, 0)
         else:
             file_chooser.size = img.size
+            file_chooser.height = file_chooser_height
             file_chooser.size_hint = img.size_hint
+            file_chooser.size_hint_y = None
             img.size = (0, 0)
             img.size_hint = (0, 0)
         self.file_chooser_active = not self.file_chooser_active
