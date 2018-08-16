@@ -8,17 +8,46 @@ from sys import argv
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.button import Button
 # Converters
 from markdown import markdown
 from pdf2image import convert_from_path
 import pdfkit
 # Custom css for markdown to html convertion
-CSS_FILE = "./style.css"
+CSS_FILE = "./dark_style.css"
 FRONT_PAGE_IMG = "./resources/front-page.png"
+PDF_OPTIONS = {
+        "page-size": "A4",
+        "margin-top": "0.0in",
+        "margin-right": "0.0in",
+        "margin-left": "0.0in",
+        "margin-bottom": "0.0in",
+        "encoding": "UTF-8",
+        "no-outline": None,
+        "quiet": ""
+        }
 
 class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
         BoxLayout.__init__(self, *args, **kwargs)
+
+
+export_layout = BoxLayout(orientation="vertical", padding=[0.1, 0.1, 0.1, 0.1])
+eBtn_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.4))
+eLabl = Label(text="Export selected document to pdf?", size_hint=(1, 0.6))
+eBtn1 = Button(text="Yes", size_hint=(0.5, 1))
+eBtn2 = Button(text="No", size_hint=(0.5, 1))
+export_layout.add_widget(eLabl)
+eBtn_layout.add_widget(eBtn1)
+eBtn_layout.add_widget(eBtn2)
+export_layout.add_widget(eBtn_layout)
+
+export_popup = Popup(title="Export to pdf",
+        content = export_layout,
+        size_hint = (None, None),
+        size = (400, 200))
 
 class TestBarApp(App):
     def __init__(self):
@@ -29,7 +58,9 @@ class TestBarApp(App):
         self.amount = 0
         self.img_basename = ""
         self.selected_file = ""
+        self.export_open = False
         Window.bind(on_key_down=self._on_keyboard_down)
+
 
     def _on_keyboard_down(self, keyboard, ascii_code, keycode, text, 
             modifiers):
@@ -49,8 +80,13 @@ class TestBarApp(App):
         elif ascii_code == 111 and modifiers == ["ctrl"]:
             self.toggle_file_chooser(self.root.ids["file_chooser"],
                     self.root.ids["image"])
+        elif ascii_code == 13 and self.export_open:
+            self.export_and_close()
+        print(ascii_code)
     
     def build(self):
+        eBtn1.bind(on_release=self.export_and_close)
+        eBtn2.bind(on_release=export_popup.dismiss)
         self.rootlayout = MyLayout()
         return self.rootlayout
 
@@ -108,9 +144,9 @@ class TestBarApp(App):
 
     def create_pdf(self, path):
         with open(path, "r") as f:
-            html_text = markdown(f.read(), output_format="html4")
+            html_text = markdown(f.read(), output_format="html5")
         output = "./.mdtmp/" + basename(path).split(".")[0] + ".pdf"
-        pdfkit.from_string(html_text, output, css=CSS_FILE)
+        pdfkit.from_string(html_text, output, options=PDF_OPTIONS, css=CSS_FILE)
         return output
 
     def export(self):
@@ -125,7 +161,16 @@ class TestBarApp(App):
             output = ("./" + basename(self.selected_file).split(".")[0] 
                     + str(i) + ".pdf")
             i += 1
-        pdfkit.from_string(html_text, output, css=CSS_FILE)
+        pdfkit.from_string(html_text, output, options=PDF_OPTIONS, css=CSS_FILE)
+
+    def export_and_close(self, *args, **kwargs):
+        self.export()
+        export_popup.dismiss()
+        self.export_open = False
+
+    def open_export_popup(self):
+        self.export_open = True
+        export_popup.open()
     
     def select_image(self, img, index):
         img.source = self.img_basename + str(index) + ".png"

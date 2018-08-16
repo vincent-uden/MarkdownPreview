@@ -19,7 +19,8 @@
             on_release: app.refresh(image)
         Button:
             text: "Export to pdf"
-            on_release: app.export()
+            #on_release: app.export()
+            on_release: app.open_export_popup()
         Button:
             text: "Prev Page"
             on_release: app.prev_img(image)
@@ -31,6 +32,12 @@
         source: app.current_img
         id: image
         size_hint: 1, 0.97
+        canvas.before:
+            Color:
+                rgb: 0.2, 0.2, 0.2
+            Rectangle:
+                pos: image.pos
+                size: image.size
 
     FileChooserIconView:
         id: file_chooser
