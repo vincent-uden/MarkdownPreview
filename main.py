@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from time import sleep
 from math import floor
-from os.path import basename, abspath, join, exists, dirname, isfile
+from os.path import basename, abspath, join, exists, dirname, isfile, realpath
 from os import makedirs, environ
 from shutil import rmtree
 from sys import argv
@@ -15,6 +15,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.config import Config
+from kivy.lang.builder import Builder
 # Converters
 from markdown import markdown
 from pdf2image import convert_from_path
@@ -22,9 +23,10 @@ import pdfkit
 # Settings
 from settings import *
 # Custom css for markdown to html convertion
-CSS_FILE = "./style.css"
-FRONT_PAGE_IMG = "./resources/front-page.png"
-FRONT_PAGE_MD = "./resources/tmp.md"
+PY_PATH = dirname(realpath(__file__))
+CSS_FILE = PY_PATH + "/style.css"
+FRONT_PAGE_IMG = PY_PATH + "/resources/front-page.png"
+FRONT_PAGE_MD = PY_PATH + "/resources/tmp.md"
 PDF_OPTIONS = {
         "page-size": "A4",
         "margin-top": "0.0in",
@@ -276,4 +278,5 @@ class TestBarApp(App):
 if __name__ == "__main__":
     if not exists("./.mdtmp"):
         makedirs("./.mdtmp")
+    Builder.load_file(PY_PATH + "/testbar.kv")
     TestBarApp().run()
