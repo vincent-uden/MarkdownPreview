@@ -1,7 +1,8 @@
+#!/usr/bin/python3
 from time import sleep
 from math import floor
 from os.path import basename, abspath, join, exists, dirname, isfile
-from os import makedirs
+from os import makedirs, environ
 from shutil import rmtree
 from sys import argv
 # GUI
@@ -13,6 +14,7 @@ from kivy.uix.modalview import ModalView
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.config import Config
 # Converters
 from markdown import markdown
 from pdf2image import convert_from_path
@@ -34,6 +36,11 @@ PDF_OPTIONS = {
         "quiet": "",
         "background": ""
         }
+
+environ['KIVY_GL_BACKEND'] = 'pygame'
+
+Config.set("kivy", "log_enable", 0)
+Config.write()
 
 class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
@@ -173,6 +180,8 @@ class TestBarApp(App):
         self.selected_file = join(file_chooser.path, file_chooser.selection[0])
         self.toggle_file_chooser(file_chooser, img)
         pdf_file = self.create_pdf(self.selected_file)
+        if pdf_file == None:
+            return
         self.create_images(pdf_file)
         self.img_index = 0
         self.select_image(img, 0)
@@ -182,6 +191,9 @@ class TestBarApp(App):
         self.selected_path = dirname(path)
         self.selected_file = path
         pdf_file = self.create_pdf(self.selected_file)
+        if pdf_file == None:
+            self.close_select_file_popup()
+            return
         self.create_images(pdf_file)
         self.img_index = 0
         self.select_image(self.root.ids["image"], 0)
@@ -191,13 +203,18 @@ class TestBarApp(App):
         self.selected_path = dirname(path)
         self.selected_file = path
         pdf_file = self.create_pdf(self.selected_file)
+        if pdf_file == None:
+            return
         self.create_images(pdf_file)
         self.img_index = 0
         self.select_image(img, 0)
 
     def create_pdf(self, path):
-        with open(path, "r") as f:
-            html_text = markdown(f.read(), output_format="html5")
+        try:
+            with open(path, "r") as f:
+                html_text = markdown(f.read(), output_format="html5")
+        except FileNotFoundError:
+            return
         output = "./.mdtmp/" + basename(path).split(".")[0] + ".pdf"
         pdfkit.from_string(html_text, output, options=PDF_OPTIONS, css=CSS_FILE)
         return output
