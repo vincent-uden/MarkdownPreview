@@ -9,12 +9,16 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
+from kivy.uix.modalview import ModalView
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
 # Converters
 from markdown import markdown
 from pdf2image import convert_from_path
 import pdfkit
+# Settings
+from settings import *
 # Custom css for markdown to html convertion
 CSS_FILE = "./style.css"
 FRONT_PAGE_IMG = "./resources/front-page.png"
@@ -51,6 +55,26 @@ export_popup = Popup(title="Export to pdf",
         size = (400, 200))
 ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   
 
+### Open file text popup ###
+open_file_layout = BoxLayout(orientation="vertical", padding=[0.1, 0.1, 0.1, 0.1])
+oText_input = TextInput(text="path", multiline=False, font_size=16, size_hint=(1, 1),
+        padding=[10, 5, 10, 0],
+        background_color=(0.2, 0.2, 0.2, 1),
+        cursor_color=(1, 1, 1, 1),
+        foreground_color=(1,1,1,1))
+
+def setFocus(*args, **kwargs):
+    oText_input.focus = True
+
+open_file_layout.add_widget(oText_input)
+
+open_file_popup = ModalView(#content=open_file_layout,
+        size_hint=(None, None),
+        size=(800, 40))
+open_file_popup.add_widget(open_file_layout)
+
+open_file_popup.bind(on_open=setFocus)
+
 class TestBarApp(App):
     def __init__(self):
         super().__init__()
@@ -61,26 +85,29 @@ class TestBarApp(App):
         self.img_basename = ""
         self.selected_file = ""
         self.export_open = False
+        self.select_file_open = False
         Window.bind(on_key_down=self._on_keyboard_down)
 
     def _on_keyboard_down(self, keyboard, ascii_code, keycode, text, 
             modifiers):
         # Ctrl + e/E -> export to pdf
-        if ascii_code == 101 and modifiers == ["ctrl"]:
+        if ascii_code == K_EXPORT and modifiers == ["ctrl"]:
             self.open_export_popup()
         # j/J        -> page down
-        elif ascii_code == 106:
+        elif ascii_code == K_PAGE_DOWN:
             self.next_img(self.root.ids["image"])
         # k/K        -> page up
-        elif ascii_code == 107:
+        elif ascii_code == K_PAGE_UP:
             self.prev_img(self.root.ids["image"])
         # Ctrl + r/R -> reload file
-        elif ascii_code == 114 and modifiers == ["ctrl"]:
+        elif ascii_code == K_RELOAD and modifiers == ["ctrl"]:
             self.refresh(self.root.ids["image"])
         # Ctrl + o/O  -> select file
-        elif ascii_code == 111 and modifiers == ["ctrl"]:
+        elif ascii_code == K_SELECT_FILE and modifiers == ["ctrl"]:
             self.toggle_file_chooser(self.root.ids["file_chooser"],
                     self.root.ids["image"])
+        elif ascii_code == K_SELECT_FILE and modifiers == ["shift", "ctrl"]:
+            self.open_select_file_popup()
         elif ascii_code == 13 :
             if self.export_open:
                 self.export_and_close()
@@ -179,6 +206,11 @@ class TestBarApp(App):
     def open_export_popup(self):
         self.export_open = True
         export_popup.open()
+
+    def open_select_file_popup(self):
+        self.select_file_open = True
+        oText_input.text = self.root.ids["file_chooser"].path
+        open_file_popup.open()
     
     def select_image(self, img, index):
         img.source = self.img_basename + str(index) + ".png"
