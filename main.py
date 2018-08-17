@@ -22,6 +22,7 @@ from settings import *
 # Custom css for markdown to html convertion
 CSS_FILE = "./style.css"
 FRONT_PAGE_IMG = "./resources/front-page.png"
+FRONT_PAGE_MD = "./resources/tmp.md"
 PDF_OPTIONS = {
         "page-size": "A4",
         "margin-top": "0.0in",
@@ -70,7 +71,8 @@ open_file_layout.add_widget(oText_input)
 
 open_file_popup = ModalView(#content=open_file_layout,
         size_hint=(None, None),
-        size=(800, 40))
+        size=(800, 40),
+        auto_dismiss=False)
 open_file_popup.add_widget(open_file_layout)
 
 open_file_popup.bind(on_open=setFocus)
@@ -107,13 +109,16 @@ class TestBarApp(App):
             self.toggle_file_chooser(self.root.ids["file_chooser"],
                     self.root.ids["image"])
         elif ascii_code == K_SELECT_FILE and modifiers == ["shift", "ctrl"]:
-            self.open_select_file_popup()
+            if not self.select_file_open:
+                self.open_select_file_popup()
         elif ascii_code == 13 :
             if self.export_open:
                 self.export_and_close()
             elif self.file_chooser_active:
                 self.select_file(self.root.ids["file_chooser"],
                         self.root.ids["image"])
+        elif ascii_code == 27 and self.select_file_open:
+            self.close_select_file_popup()
     
     def build(self):
         eBtn1.bind(on_release=self.export_and_close)
@@ -123,8 +128,11 @@ class TestBarApp(App):
 
     def on_start(self):
         self.root.ids["file_chooser"].path = abspath("./")
+        open_file_popup.children[0].children[0].bind(on_text_validate=self.set_selected_file)
         if len(argv) == 2:
             self.select_file_path("./" + argv[1], self.root.ids["image"])
+        else:
+            self.select_file_path(FRONT_PAGE_MD, self.root.ids["image"])
 
     def on_stop(self):
         rmtree('./.mdtmp', ignore_errors=True)
@@ -168,6 +176,16 @@ class TestBarApp(App):
         self.create_images(pdf_file)
         self.img_index = 0
         self.select_image(img, 0)
+
+    def set_selected_file(self, event):
+        path = open_file_popup.children[0].children[0].text
+        self.selected_path = dirname(path)
+        self.selected_file = path
+        pdf_file = self.create_pdf(self.selected_file)
+        self.create_images(pdf_file)
+        self.img_index = 0
+        self.select_image(self.root.ids["image"], 0)
+        self.close_select_file_popup()
     
     def select_file_path(self, path, img):
         self.selected_path = dirname(path)
@@ -209,8 +227,12 @@ class TestBarApp(App):
 
     def open_select_file_popup(self):
         self.select_file_open = True
-        oText_input.text = self.root.ids["file_chooser"].path
+        oText_input.text = self.root.ids["file_chooser"].path + "/"
         open_file_popup.open()
+
+    def close_select_file_popup(self):
+        open_file_popup.dismiss()
+        self.select_file_open = False
     
     def select_image(self, img, index):
         img.source = self.img_basename + str(index) + ".png"
