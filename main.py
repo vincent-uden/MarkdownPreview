@@ -16,7 +16,7 @@ from markdown import markdown
 from pdf2image import convert_from_path
 import pdfkit
 # Custom css for markdown to html convertion
-CSS_FILE = "./dark_style.css"
+CSS_FILE = "./style.css"
 FRONT_PAGE_IMG = "./resources/front-page.png"
 PDF_OPTIONS = {
         "page-size": "A4",
@@ -26,14 +26,15 @@ PDF_OPTIONS = {
         "margin-bottom": "0.0in",
         "encoding": "UTF-8",
         "no-outline": None,
-        "quiet": ""
+        "quiet": "",
+        "background": ""
         }
 
 class MyLayout(BoxLayout):
     def __init__(self, *args, **kwargs):
         BoxLayout.__init__(self, *args, **kwargs)
 
-###   ###   ###   ###   ###  Export confirmation popup ###   ###   ###   ###   ###   ###
+###   ###   ###   ###   ###  Export confirmation popup ###   ###   ###   ###   ###   
 export_layout = BoxLayout(orientation="vertical", padding=[0.1, 0.1, 0.1, 0.1])
 eBtn_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.4))
 eLabl = Label(text="Export selected document to pdf?", size_hint=(1, 0.6))
@@ -48,7 +49,7 @@ export_popup = Popup(title="Export to pdf",
         content = export_layout,
         size_hint = (None, None),
         size = (400, 200))
-###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###
+###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   ###   
 
 class TestBarApp(App):
     def __init__(self):
@@ -66,7 +67,7 @@ class TestBarApp(App):
             modifiers):
         # Ctrl + e/E -> export to pdf
         if ascii_code == 101 and modifiers == ["ctrl"]:
-            self.export()
+            self.open_export_popup()
         # j/J        -> page down
         elif ascii_code == 106:
             self.next_img(self.root.ids["image"])
