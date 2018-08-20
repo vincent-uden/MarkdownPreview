@@ -86,6 +86,7 @@ open_file_popup.add_widget(open_file_layout)
 
 open_file_popup.bind(on_open=setFocus)
 
+
 class TestBarApp(App):
     def __init__(self):
         super().__init__()
@@ -132,7 +133,8 @@ class TestBarApp(App):
     def build(self):
         eBtn1.bind(on_release=self.export_and_close)
         eBtn2.bind(on_release=export_popup.dismiss)
-        self.rootlayout = MyLayout()
+        ROOT = Builder.load_file(PY_PATH + "/testbar.kv")
+        self.rootlayout = ROOT
         return self.rootlayout
 
     def on_start(self):
@@ -278,5 +280,4 @@ class TestBarApp(App):
 if __name__ == "__main__":
     if not exists("./.mdtmp"):
         makedirs("./.mdtmp")
-    Builder.load_file(PY_PATH + "/testbar.kv")
     TestBarApp().run()
